@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/asteroid.tscn" id="3_asteroid"]
+[ext_resource type="PackedScene" path="res://scenes/hostile_ship.tscn" id="4_hostile"]
+
+[node name="Arena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(640, 570)
+
+[node name="HostileShip" parent="." instance=ExtResource("4_hostile")]
+position = Vector2(640, 188)
+
+[node name="AsteroidLeft" parent="." instance=ExtResource("3_asteroid")]
+position = Vector2(350, 330)
+
+[node name="AsteroidRight" parent="." instance=ExtResource("3_asteroid")]
+position = Vector2(930, 420)

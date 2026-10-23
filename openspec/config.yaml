@@ -1,0 +1,59 @@
+schema: spec-driven
+
+context: |
+  # Project: Space Fighter
+
+  Space Fighter is a small, single-player 2D arcade space-combat game. A run
+  should be playable in roughly 5–15 minutes. The player pilots one ship,
+  avoids and destroys hazards, survives escalating waves, and earns temporary
+  ship upgrades. The intended experience is readable, responsive, and easy to
+  restart—not a complex simulation or long-form progression game.
+
+  The target is a desktop executable with top-down 2D gameplay and 3D or
+  3D-esque presentation. Controls are designed for keyboard and mouse. The art
+  direction is an original anime-inspired space opera reminiscent of Macross
+  Plus; do not copy protected characters, ships, logos, or artwork.
+
+  The game must run smoothly on an older Apple Silicon M1 MacBook Pro. Prefer
+  native Apple Silicon desktop builds where supported, scalable visual quality,
+  bounded entity and particle counts, and frame-time stability over expensive
+  post-processing or high-end rendering features. Validate performance on the
+  target hardware rather than relying only on a development machine.
+
+  The selected engine and gameplay language are Godot 4 and GDScript. Prefer
+  Godot's built-in scene, node, resource, and signal patterns. Keep gameplay
+  scripts typed where it improves clarity and maintainability, and avoid adding
+  C# or native extensions unless a specific approved requirement justifies it.
+
+  Levels are discrete bounded areas rather than one open world. A finite,
+  generated or recombined route should lead to a final boss. The route may
+  vary between runs and may include occasional boss levels before the final
+  boss, but there is no infinite mode in the initial release. An average
+  skilled player should complete a run in about 15 minutes, within the broader
+  5–15 minute gameplay goal. The first release uses run-local upgrades only.
+
+  The current design baseline is documented in docs/game-design.md. Decisions
+  that remain open are tracked in docs/open-questions.md. Do not silently make
+  unresolved choices permanent; record the choice in the relevant OpenSpec
+  change and update the context.
+
+  Prefer the smallest complete playable slice. Keep gameplay systems modular,
+  deterministic where practical, and easy to tune. Favor clear player
+  feedback over visual or mechanical complexity. New features should explain
+  how they fit within the 5–15 minute run and should identify their scope and
+  non-goals.
+
+  The initial release is expected to be single-player and focused on one run
+  loop: move, aim/fire, avoid, destroy, survive, choose an upgrade, and either
+  continue or lose. Multiplayer, persistent progression, large inventories,
+  complex economy, and a large campaign are out of scope unless explicitly
+  approved.
+
+rules:
+  specs:
+    - Describe observable player behavior and acceptance criteria.
+    - Keep requirements narrow enough to implement and play-test in one change.
+    - Include tuning values as named configuration where practical rather than
+      scattering magic numbers through gameplay code.
+    - Update docs/game-design.md when an approved change alters the shared
+      game model or vocabulary.
