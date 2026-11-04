@@ -5,11 +5,27 @@ const ARENA_RECT := Rect2(48.0, 88.0, 1184.0, 588.0)
 
 @onready var player: PlayerShip = $Player
 @onready var hostile: HostileShip = $HostileShip
+var active_physics_contacts: Dictionary = {}
 
 
 func _ready() -> void:
+	process_physics_priority = 100
 	hostile.set_target(player)
 	queue_redraw()
+
+
+func _physics_process(delta: float) -> void:
+	simulate_physics_step(delta)
+
+
+func simulate_physics_step(delta: float) -> void:
+	var bodies: Array[ArcadePhysicsBody] = []
+	for entity in get_tree().get_nodes_in_group("physical_body"):
+		if entity is Node and entity.has_method("get_physics_body"):
+			var body: ArcadePhysicsBody = entity.call("get_physics_body")
+			if body != null:
+				bodies.append(body)
+	ArcadePhysics.step(bodies, delta, ARENA_RECT, active_physics_contacts)
 
 
 func _draw() -> void:

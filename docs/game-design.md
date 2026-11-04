@@ -72,7 +72,8 @@ The ship needs these baseline capabilities:
 - movement with responsive acceleration and deceleration;
 - a primary weapon with clear fire feedback and a controllable rate of fire;
 - a shield or health model that communicates remaining survivability;
-- collision and damage feedback;
+- collision and damage feedback, including momentum transfer and impact damage
+  when ships collide with ships or asteroids;
 - a small set of upgrade slots or choices;
 - at least one special weapon or ability with a meaningful cooldown, charge, or
   limited-use constraint.
@@ -101,6 +102,10 @@ patterns, durability, and enemy fire—not arbitrary damage spikes.
 - Player shots should have obvious travel, impact, and destruction feedback.
 - Asteroids and obstacles should be destroyable or avoidable; indestructible
   hazards should be rare and clearly signaled.
+- Asteroids drift through bounded arenas on randomized, speed-limited initial
+  trajectories. Ships and asteroids push apart and change trajectory on contact;
+  sufficiently hard impacts can damage both objects, with impact tuning exposed
+  so collisions remain readable rather than simulation-heavy.
 - Enemy ships should have readable attack telegraphs and projectile behavior.
 - Damage should briefly communicate its source and direction where practical.
 - A run ends when the player's survivability reaches zero. The game should
