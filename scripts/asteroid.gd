@@ -1,11 +1,20 @@
 extends Area2D
+class_name AsteroidHazard
 
 signal destroyed
 
 const ImpactEffect = preload("res://scripts/impact_effect.gd")
 const MAX_HEALTH: int = 3
+const MIN_DRIFT_SPEED: float = 42.0
+const MAX_DRIFT_SPEED: float = 92.0
+const PHYSICS_MASS: float = 1.2
+const PHYSICS_RADIUS: float = 24.0
+const PHYSICS_MAX_SPEED: float = 260.0
+const PHYSICS_RESTITUTION: float = 0.32
 
 var health: int = MAX_HEALTH
+var physics_body: ArcadePhysicsBody
+var drift_seed: int = -1
 var hit_flash: float = 0.0
 var is_destroyed: bool = false
 var rock_points := PackedVector2Array([
@@ -15,9 +24,29 @@ var rock_points := PackedVector2Array([
 
 
 func _ready() -> void:
+	physics_body = ArcadePhysicsBody.new(
+		self,
+		PHYSICS_MASS,
+		PHYSICS_RADIUS,
+		PHYSICS_MAX_SPEED,
+		PHYSICS_RESTITUTION
+	)
+	initialize_drift()
+	add_to_group("physical_body")
 	collision_layer = 4
 	collision_mask = 1 | 2
 	add_to_group("asteroid_hazard")
+
+
+func initialize_drift() -> void:
+	var rng := RandomNumberGenerator.new()
+	if drift_seed >= 0:
+		rng.seed = drift_seed
+	else:
+		rng.randomize()
+	var angle: float = rng.randf_range(0.0, TAU)
+	var speed: float = rng.randf_range(MIN_DRIFT_SPEED, MAX_DRIFT_SPEED)
+	physics_body.velocity = Vector2.RIGHT.rotated(angle) * speed
 
 
 func _process(delta: float) -> void:
@@ -36,11 +65,20 @@ func take_damage(amount: int) -> void:
 	get_tree().current_scene.add_child(effect)
 	if health <= 0:
 		is_destroyed = true
+		physics_body.enabled = false
 		destroyed.emit()
 		var burst := ImpactEffect.new()
 		burst.configure(global_position, Color(1.0, 0.48, 0.2), 1.35)
 		get_tree().current_scene.add_child(burst)
 		queue_free()
+
+
+func get_physics_body() -> ArcadePhysicsBody:
+	return physics_body
+
+
+func take_impact_damage(amount: int) -> void:
+	take_damage(amount)
 
 
 func _draw() -> void:

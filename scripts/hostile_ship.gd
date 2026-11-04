@@ -8,10 +8,17 @@ const ImpactEffect = preload("res://scripts/impact_effect.gd")
 const MAX_HEALTH: int = 6
 const ATTACK_INTERVAL: float = 1.85
 const TELEGRAPH_TIME: float = 0.62
+const MOVEMENT_AMPLITUDE: float = 34.0
+const MOVEMENT_FREQUENCY: float = 1.15
+const PHYSICS_MASS: float = 2.2
+const PHYSICS_RADIUS: float = 22.0
+const PHYSICS_MAX_SPEED: float = 360.0
+const PHYSICS_RESTITUTION: float = 0.25
+const PHYSICS_ACCELERATION: float = 700.0
 
 var health: int = MAX_HEALTH
+var physics_body: ArcadePhysicsBody
 var target: Area2D
-var base_position: Vector2
 var elapsed: float = 0.0
 var attack_timer: float = 0.9
 var hit_flash: float = 0.0
@@ -20,22 +27,33 @@ var telegraphing: bool = false
 
 
 func _ready() -> void:
+	physics_body = ArcadePhysicsBody.new(
+		self,
+		PHYSICS_MASS,
+		PHYSICS_RADIUS,
+		PHYSICS_MAX_SPEED,
+		PHYSICS_RESTITUTION,
+		PHYSICS_ACCELERATION
+	)
+	add_to_group("physical_body")
 	collision_layer = 8
 	collision_mask = 1 | 2
 	add_to_group("hostile_ship")
-	base_position = position
 
 
 func set_target(player: Area2D) -> void:
 	target = player
 
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if is_destroyed:
 		return
 	elapsed += delta
 	hit_flash = maxf(0.0, hit_flash - delta)
-	position.x = base_position.x + sin(elapsed * 1.15) * 34.0
+	physics_body.movement_target = Vector2(
+		cos(elapsed * MOVEMENT_FREQUENCY) * MOVEMENT_AMPLITUDE * MOVEMENT_FREQUENCY,
+		0.0
+	)
 	attack_timer -= delta
 	telegraphing = attack_timer <= TELEGRAPH_TIME
 	if attack_timer <= 0.0 and is_instance_valid(target):
@@ -56,11 +74,20 @@ func take_damage(amount: int) -> void:
 	get_tree().current_scene.add_child(effect)
 	if health <= 0:
 		is_destroyed = true
+		physics_body.enabled = false
 		destroyed.emit()
 		var burst := ImpactEffect.new()
 		burst.configure(global_position, Color(1.0, 0.34, 0.73), 1.8)
 		get_tree().current_scene.add_child(burst)
 		queue_free()
+
+
+func get_physics_body() -> ArcadePhysicsBody:
+	return physics_body
+
+
+func take_impact_damage(amount: int) -> void:
+	take_damage(amount)
 
 
 func _draw() -> void:

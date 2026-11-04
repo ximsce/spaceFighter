@@ -10,10 +10,19 @@ const MAX_HEALTH: int = 6
 const MOVE_SPEED: float = 300.0
 const ACCELERATION: float = 1500.0
 const FIRE_INTERVAL: float = 0.17
-const ARENA_BOUNDS := Rect2(Vector2(48.0, 88.0), Vector2(1184.0, 588.0))
+const PHYSICS_MASS: float = 2.8
+const PHYSICS_RADIUS: float = 22.0
+const PHYSICS_MAX_SPEED: float = 430.0
+const PHYSICS_RESTITUTION: float = 0.2
 
 var health: int = MAX_HEALTH
-var velocity: Vector2 = Vector2.ZERO
+var physics_body: ArcadePhysicsBody
+var velocity: Vector2:
+	get:
+		return physics_body.velocity if physics_body != null else Vector2.ZERO
+	set(value):
+		if physics_body != null:
+			physics_body.velocity = value
 var fire_cooldown: float = 0.0
 var damage_cooldown: float = 0.0
 var hit_flash: float = 0.0
@@ -21,10 +30,18 @@ var is_destroyed: bool = false
 
 
 func _ready() -> void:
+	physics_body = ArcadePhysicsBody.new(
+		self,
+		PHYSICS_MASS,
+		PHYSICS_RADIUS,
+		PHYSICS_MAX_SPEED,
+		PHYSICS_RESTITUTION,
+		ACCELERATION
+	)
+	add_to_group("physical_body")
 	collision_layer = 1
 	collision_mask = 4 | 8
 	add_to_group("player_ship")
-	area_entered.connect(_on_area_entered)
 	health_changed.emit(health, MAX_HEALTH)
 
 
@@ -35,10 +52,7 @@ func _physics_process(delta: float) -> void:
 	damage_cooldown = maxf(0.0, damage_cooldown - delta)
 	hit_flash = maxf(0.0, hit_flash - delta)
 	var input_direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	velocity = velocity.move_toward(input_direction * MOVE_SPEED, ACCELERATION * delta)
-	global_position += velocity * delta
-	global_position.x = clampf(global_position.x, ARENA_BOUNDS.position.x + 22.0, ARENA_BOUNDS.end.x - 22.0)
-	global_position.y = clampf(global_position.y, ARENA_BOUNDS.position.y + 22.0, ARENA_BOUNDS.end.y - 22.0)
+	physics_body.movement_target = input_direction * MOVE_SPEED
 	var aim_direction := get_global_mouse_position() - global_position
 	aim_at(get_global_mouse_position())
 	if Input.is_action_pressed("fire_primary") and fire_cooldown <= 0.0:
@@ -65,14 +79,18 @@ func take_damage(amount: int) -> void:
 	_spawn_effect(global_position, Color(1.0, 0.36, 0.48), 1.0)
 	if health <= 0:
 		is_destroyed = true
+		physics_body.enabled = false
 		destroyed.emit()
 		_spawn_effect(global_position, Color(1.0, 0.34, 0.55), 1.8)
 		queue_free()
 
 
-func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("asteroid_hazard") or area.is_in_group("hostile_ship"):
-		take_damage(1)
+func get_physics_body() -> ArcadePhysicsBody:
+	return physics_body
+
+
+func take_impact_damage(amount: int) -> void:
+	take_damage(amount)
 
 
 func _spawn_effect(at: Vector2, tint: Color, strength: float) -> void:
