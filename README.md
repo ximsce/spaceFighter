@@ -27,3 +27,5 @@ Nearly all implementation should happen through OpenSpec changes. Each change
 should be small enough to implement and play-test independently, state its
 player-facing behavior, and avoid introducing systems that are not needed for
 the short-run arcade experience.
+
+bump
