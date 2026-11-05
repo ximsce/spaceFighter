@@ -16,7 +16,7 @@ static func step(
 	for body in bodies:
 		if not _is_body_active(body):
 			continue
-		if delta > 0.0 and body.acceleration > 0.0:
+		if delta > 0.0 and (body.acceleration > 0.0 or body.coast_deceleration > 0.0):
 			var target_rate: float = body.acceleration
 			if body.movement_target.is_zero_approx():
 				target_rate = body.coast_deceleration

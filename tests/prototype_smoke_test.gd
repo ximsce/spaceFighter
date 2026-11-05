@@ -42,6 +42,7 @@ func _run() -> void:
 	await _test_player_momentum(player)
 
 	player.global_position = Vector2(640.0, 654.0)
+	player.velocity = Vector2.ZERO
 	Input.action_press("move_down")
 	await physics_frame
 	Input.action_release("move_down")
