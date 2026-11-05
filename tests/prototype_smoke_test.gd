@@ -39,6 +39,7 @@ func _run() -> void:
 		await physics_frame
 	Input.action_release("move_up")
 	_check(player.global_position.y < start_position.y, "keyboard input moves the ship")
+	await _test_player_momentum(player)
 
 	player.global_position = Vector2(640.0, 654.0)
 	Input.action_press("move_down")
@@ -127,6 +128,27 @@ func _has_physical_projectile() -> bool:
 		if entity is CombatProjectile:
 			return true
 	return false
+
+
+func _test_player_momentum(player: PlayerShip) -> void:
+	var original_position := player.global_position
+	var original_velocity := player.velocity
+	player.global_position = Vector2(640.0, 570.0)
+	player.velocity = Vector2.ZERO
+	Input.action_press("move_up")
+	await physics_frame
+	_check(player.velocity.length() < PlayerShip.MOVE_SPEED, "player thrust accelerates gradually rather than changing velocity instantly")
+	for frame in range(19):
+		await physics_frame
+	var launch_velocity := player.velocity
+	var launch_position := player.global_position
+	Input.action_release("move_up")
+	for frame in range(10):
+		await physics_frame
+	_check(player.velocity.is_equal_approx(launch_velocity), "player retains momentum after thrust is released")
+	_check(player.global_position.distance_to(launch_position) > 1.0, "player drifts after thrust is released")
+	player.global_position = original_position
+	player.velocity = original_velocity
 
 
 func _test_asteroid_drift() -> void:

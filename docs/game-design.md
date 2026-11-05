@@ -69,7 +69,8 @@ the tradeoff without pausing to manage a large inventory.
 
 The ship needs these baseline capabilities:
 
-- movement with responsive acceleration and deceleration;
+- movement with responsive thrust, momentum, and drift: the ship accelerates
+  gradually and keeps its velocity when thrust is released;
 - a primary weapon with clear fire feedback and a controllable rate of fire;
 - a shield or health model that communicates remaining survivability;
 - collision and damage feedback, including momentum transfer and impact damage

@@ -8,7 +8,8 @@ signal fire_requested(origin: Vector2, direction: Vector2)
 const ImpactEffect = preload("res://scripts/impact_effect.gd")
 const MAX_HEALTH: int = 6
 const MOVE_SPEED: float = 300.0
-const ACCELERATION: float = 1500.0
+const ACCELERATION: float = 800.0
+const COAST_DECELERATION: float = 0.0
 const FIRE_INTERVAL: float = 0.17
 const PHYSICS_MASS: float = 2.8
 const PHYSICS_RADIUS: float = 22.0
@@ -36,7 +37,8 @@ func _ready() -> void:
 		PHYSICS_RADIUS,
 		PHYSICS_MAX_SPEED,
 		PHYSICS_RESTITUTION,
-		ACCELERATION
+		ACCELERATION,
+		COAST_DECELERATION
 	)
 	add_to_group("physical_body")
 	collision_layer = 1

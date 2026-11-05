@@ -17,7 +17,11 @@ static func step(
 		if not _is_body_active(body):
 			continue
 		if delta > 0.0 and body.acceleration > 0.0:
-			body.velocity = body.velocity.move_toward(body.movement_target, body.acceleration * delta)
+			var target_rate: float = body.acceleration
+			if body.movement_target.is_zero_approx():
+				target_rate = body.coast_deceleration
+			if target_rate > 0.0:
+				body.velocity = body.velocity.move_toward(body.movement_target, target_rate * delta)
 		if body.max_speed > 0.0 and body.velocity.length_squared() > body.max_speed * body.max_speed:
 			body.velocity = body.velocity.normalized() * body.max_speed
 		if delta > 0.0:
